@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Food Kiosk</title>
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-pink: #ff00e5;
+            --neon-purple: #9d00ff;
+            --bg-dark: #0a0b1e;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: white; overflow: hidden;
+            display: flex; flex-direction: column;
+            user-select: none;
+        }
+
+        header {
+            text-align: center; padding: 15px;
+            background: linear-gradient(180deg, rgba(0,242,255,0.1) 0%, transparent 100%);
+            border-bottom: 2px solid var(--neon-blue);
+        }
+
+        header h1 {
+            margin: 0; font-size: 2.2rem; text-transform: uppercase;
+            letter-spacing: 5px; color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        #menu-container {
+            flex: 1; display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px; padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .menu-item {
+            background: var(--glass);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+
+        .menu-item:active {
+            transform: scale(0.95);
+            border-color: var(--neon-pink);
+            background: rgba(255, 0, 229, 0.1);
+        }
+
+        .item-emoji { font-size: 4rem; margin-bottom: 5px; }
+        .item-name { font-size: 1.3rem; font-weight: bold; text-transform: uppercase; }
+        .item-price { color: var(--neon-blue); font-size: 1.1rem; }
+
+        #bottom-bar {
+            height: 100px; background: rgba(0, 0, 0, 0.8);
+            border-top: 3px solid var(--neon-purple);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; box-sizing: border-box;
+        }
+
+        .summary-stats { display: flex; flex-direction: column; }
+        .stat-val { font-size: 1.6rem; color: var(--neon-blue); font-weight: bold; }
+
+        .button-group { display: flex; gap: 15px; }
+
+        .btn {
+            padding: 12px 25px; border-radius: 50px; border: none;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            text-transform: uppercase; transition: 0.2s;
+        }
+
+        .btn-cancel { background: #222; color: #ff4d4d; border: 2px solid #ff4d4d; }
+        .btn-complete { background: var(--neon-purple); color: white; box-shadow: 0 0 15px var(--neon-purple); }
+
+        /* Overlays */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000;
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; text-align: center;
+        }
+
+        .modal-content {
+            background: var(--bg-dark); padding: 40px; border-radius: 30px;
+            border: 2px solid var(--neon-blue); width: 80%; max-width: 600px;
+        }
+
+        .order-list {
+            text-align: left; background: rgba(255,255,255,0.05);
+            padding: 20px; border-radius: 15px; margin: 20px 0;
+            max-height: 200px; overflow-y: auto; font-size: 1.2rem;
+        }
+
+        .option-group { display: flex; gap: 20px; justify-content: center; margin-top: 20px; }
+
+        .option-btn {
+            background: var(--glass); border: 2px solid var(--neon-blue);
+            color: white; padding: 15px 30px; border-radius: 12px;
+            font-size: 1.3rem; cursor: pointer;
+        }
+
+        .option-btn:active { background: var(--neon-blue); color: black; }
+
+        #final-msg { color: var(--neon-pink); font-size: 2.5rem; text-shadow: 0 0 10px var(--neon-pink); }
+    </style>
+</head>
+<body>
+
+    <header><h1>Cyber Bistro</h1></header>
+
+    <div id="menu-container">
+        <div class="menu-item" onclick="addToOrder('Hamburger', 90)">
+            <div class="item-emoji">🍔</div><div class="item-name">Hamburger</div><div class="item-price">$90</div>
+        </div>
+        <div class="menu-item" onclick="addToOrder('Hot Dog', 70)">
+            <div class="item-emoji">🌭</div><div class="item-name">Hot Dog</div><div class="item-price">$70</div>
+        </div>
+        <div class="menu-item" onclick="addToOrder('Juice', 30)">
+            <div class="item-emoji">🍹</div><div class="item-name">Juice</div><div class="item-price">$30</div>
+        </div>
+        <div class="menu-item" onclick="addToOrder('Milk', 40)">
+            <div class="item-emoji">🥛</div><div class="item-name">Milk</div><div class="item-price">$40</div>
+        </div>
+        <div class="menu-item" onclick="addToOrder('Water', 20)">
+            <div class="item-emoji">💧</div><div class="item-name">Water</div><div class="item-price">$20</div>
+        </div>
+        <div class="menu-item" onclick="addToOrder('Ice Cream', 45)">
+            <div class="item-emoji">🍦</div><div class="item-name">Ice Cream</div><div class="item-price">$45</div>
+        </div>
+    </div>
+
+    <div id="bottom-bar">
+        <div class="summary-stats">
+            <div>Items: <span id="item-count" class="stat-val">0</span></div>
+            <div>Total: <span id="total-price" class="stat-val">$0</span></div>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-cancel" onclick="openCancelModal()">Cancel Order</button>
+            <button class="btn btn-complete" onclick="openCompleteModal()">Complete Order</button>
+        </div>
+    </div>
+
+    <div id="cancel-modal" class="overlay">
+        <div class="modal-content">
+            <h2>Do you want to cancel your order?</h2>
+            <div class="option-group">
+                <button class="option-btn" style="border-color:#ff4d4d;" onclick="resetGame()">Yes</button>
+                <button class="option-btn" onclick="closeModals()">No</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="complete-modal" class="overlay">
+        <div class="modal-content">
+            <div id="summary-view">
+                <h2>Your Order Summary</h2>
+                <div id="order-items-list" class="order-list"></div>
+                <h3 style="font-size: 1.8rem;">Total: <span id="final-total" style="color:var(--neon-blue)">$0</span></h3>
+                <div class="option-group">
+                    <button class="option-btn" onclick="showFinalMsg()">🍽️ Dine In</button>
+                    <button class="option-btn" onclick="showFinalMsg()">🥡 Take Out</button>
+                </div>
+                <button class="btn btn-cancel" style="margin-top:20px" onclick="closeModals()">Back</button>
+            </div>
+            <div id="final-view" style="display:none;">
+                <h2 id="final-msg">PLEASE PROCEED TO THE COUNTER</h2>
+                <button class="btn btn-complete" style="margin-top:30px; padding: 20px 50px;" onclick="resetGame()">Order Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let order = [];
+        let totalPrice = 0;
+
+        function addToOrder(name, price) {
+            order.push({name, price});
+            totalPrice += price;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('item-count').innerText = order.length;
+            document.getElementById('total-price').innerText = "$" + totalPrice;
+        }
+
+        function openCancelModal() {
+            if(order.length > 0) document.getElementById('cancel-modal').style.display = 'flex';
+        }
+
+        function openCompleteModal() {
+            if(order.length === 0) return;
+            const listDiv = document.getElementById('order-items-list');
+            listDiv.innerHTML = order.map(item => `<div>• ${item.name} ($${item.price})</div>`).join('');
+            document.getElementById('final-total').innerText = "$" + totalPrice;
+            
+            document.getElementById('summary-view').style.display = 'block';
+            document.getElementById('final-view').style.display = 'none';
+            document.getElementById('complete-modal').style.display = 'flex';
+        }
+
+        function showFinalMsg() {
+            document.getElementById('summary-view').style.display = 'none';
+            document.getElementById('final-view').style.display = 'block';
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.overlay').forEach(m => m.style.display = 'none');
+        }
+
+        function resetGame() {
+            order = [];
+            totalPrice = 0;
+            updateDisplay();
+            closeModals();
+        }
+    </script>
+</body>
+</html>
